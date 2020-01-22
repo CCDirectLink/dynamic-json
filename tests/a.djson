@@ -1,7 +1,4 @@
 [{
-    "type": "BASE",
-    "data" : []
-},{
     "type": "TEMPLATE",
     "name": "sheet",
     "data": {
@@ -17,8 +14,8 @@
     "path": ["FACEANIMS", "namedSheets"]
 }, {
     "type": "VAR",
-    "varType": "number",
-    "name": "offX"
+    "name": "offX",
+    "value": 0
 }, {
     "type": "VAR",
     "name": "namedSheets",
