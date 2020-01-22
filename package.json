@@ -1,5 +1,10 @@
 {
 	"name": "dynamic-json",
+	"type": "module",
+	"main": "plugin.js",
+	"scripts" : {
+		"start": "node . --experimental-modules"
+	}, 
 	"version": "0.1.0",
 	"plugin": "plugin.js"
 }
