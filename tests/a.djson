@@ -1,8 +1,8 @@
-TEMPLATE = {
-    ["src" ""]
-    ["xCount" 5]
-    ["offX" 0]
-    ["offY" 0]
-    ["width" 40]
-    ["height" 32]
+ABC = {
+    "a" {
+        "b" 2
+    }
 };
+ABC["a"]["b"] = 3;
+
+ABC["a"]["b"];
