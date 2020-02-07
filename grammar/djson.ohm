@@ -3,10 +3,12 @@ DJSON {
       Statement = (Assignment | Exp | ClosedExp) EOL
       EOL = ("\n"|";")
       Assignment = Lhs "=" Rhs
-      Lhs = identifier
+      Lhs = Accessor | identifier
       Rhs = Exp
+      ObjectPair = string (Exp | ClosedExp)
+      Obj = "{" ListOf<ObjectPair, ","> "}"  
       Arr = "[" ListOf<tuple, ","> "]" 
-      Exp = tuple | Arr | literal | identifier
+      Exp = tuple | Obj | Arr | literal | Accessor | identifier
       literal = number | boolean | string
       
       ClosedExp = "(" Exp ")"
@@ -18,4 +20,5 @@ DJSON {
                   "'" char* "'"
       char  = letter | space
       identifier = ("A" .. "Z")+
+      Accessor = identifier ("[" string "]")+
 }
