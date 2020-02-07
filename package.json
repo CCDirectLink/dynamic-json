@@ -1,10 +1,12 @@
 {
 	"name": "dynamic-json",
-	"type": "module",
-	"main": "plugin.js",
-	"scripts" : {
-		"start": "node . --experimental-modules"
-	}, 
+	"main": "./plugin.js",
+	"scripts": {
+		"start": "node ."
+	},
 	"version": "0.1.0",
-	"plugin": "plugin.js"
+	"plugin": "plugin.js",
+	"dependencies": {
+		"ohm-js": "^0.14.0"
+	}
 }
