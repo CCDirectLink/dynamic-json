@@ -1,3 +1,36 @@
+class Obj {
+    constructor() {
+        this.pairs = new Map;
+    }
+
+    set(name, value) {
+        let id;
+        if (name instanceof Literal) {
+            id = name.get();
+        } else {
+            id = name.id;
+        }
+        this.pairs.set(id, value);
+    }
+
+    get(name) {
+        let id;
+        if (name instanceof Literal) {
+            id = name.get();
+        } else {
+            id = name.id;
+        }
+
+        const value = this.pairs.get(id);
+
+        if (value) {
+            return value;
+        }
+
+        return undefined;
+    }
+}
+
 class Scope {
     constructor(name, parent = null) {
         this.name = name;
@@ -10,6 +43,9 @@ class Scope {
     }
 
     getVar(id) {
+        if (id instanceof Identifier) {
+            id = id.getId();
+        }
         if (!this.vars.has(id)) {
             if (this.parent === null) {
                 throw Error(`${id} is not.`);
@@ -27,9 +63,16 @@ class Scope {
 class Identifier {
     constructor(id) {
         this.id = id;
-    } 
+        this.value = 0;
+    }
+
     set(value) {
         this.value = value;
+    }
+
+
+    getId() {
+        return this.id;
     }
 
     get() {
@@ -40,6 +83,19 @@ class Identifier {
 class Literal {
     constructor(value) {
         this.value = value;
+    }
+
+    set(value) {
+
+        if (value instanceof Literal) {
+            value = value.get();
+        }
+
+        this.value = value;
+    }
+
+    clone() {
+        return new Literal(this.value);
     }
 
     get() {
@@ -102,6 +158,9 @@ module.exports = {
     Assignment: function(lhs,_, rhs) {
         const id = lhs.interpret();
         let value = rhs.interpret();
+        if (value instanceof Identifier) {
+            value = value.clone();
+        }
         id.set(value);
         
         globalScope.setVar(id);
@@ -146,7 +205,39 @@ module.exports = {
     Arr: function(_, b, _) {
         return new Arr(b.interpret());
     },
+    Obj: function(_, b, _) {
+        const object = new Obj;
+        for (const [id, value] of b.interpret()) {
+            object.set(id, value);
+        }
+
+        return object;
+    },
+    ObjectPair: function(key, value) {
+        const keyId = key.interpret();
+        const val = value.interpret();
+        return [keyId, val];
+    },
     NonemptyListOf: function(a, _, c) {
         return [a.interpret(), ...c.interpret()];
+    },
+    Accessor: function(id, _, b, _) {
+        const objId = id.interpret();
+
+        let identifier = globalScope.getVar(objId);
+        let obj = identifier.get();
+        const keys = b.interpret();
+        let value = null;
+        if (obj) {
+            for (const key of keys) {
+            
+                value = obj.get(key);
+            
+                if  (value instanceof Obj || value instanceof Arr) {
+                    obj = value;
+                }    
+            }
+        }
+        return value;
     }
 };
