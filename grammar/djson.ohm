@@ -1,0 +1,21 @@
+DJSON {
+      Program = (Statement)+
+      Statement = (Assignment | Exp | ClosedExp) EOL
+      EOL = ("\n"|";")
+      Assignment = Lhs "=" Rhs
+      Lhs = identifier
+      Rhs = Exp
+      Arr = "[" ListOf<tuple, ","> "]" 
+      Exp = tuple | Arr | literal | identifier
+      literal = number | boolean | string
+      
+      ClosedExp = "(" Exp ")"
+
+      tuple = "[" (identifier | string) space* (literal | identifier | tuple) "]"
+      number = digit+ "."? digit*
+      boolean = "true" | "false"
+      string = "\"" char* "\""  |
+                  "'" char* "'"
+      char  = letter | space
+      identifier = ("A" .. "Z")+
+}
