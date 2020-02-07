@@ -1,41 +1,8 @@
-[{
-    "type": "TEMPLATE",
-    "name": "sheet",
-    "data": {
-        "src": "{{PATH}}patches/media/effects/pentafist-punch.png",
-        "xCount": 5,
-        "offX": 0,
-        "offY": 0,
-        "width": 40,
-        "height": 32
-    }
-}, {
-    "type": "GO",
-    "path": ["FACEANIMS", "namedSheets"]
-}, {
-    "type": "VAR",
-    "name": "offX",
-    "value": 0
-}, {
-    "type": "VAR",
-    "name": "namedSheets",
-    "value": ["a", "b"]
-},{
-    "type": "FOR",
-    "in": "namedSheets",
-    "body": [{
-        "type": "USE",
-        "in": "{{!INDEX}}",
-        "template": "sheet",
-        "data" : {
-            "offX": "{{!offX}}"
-        }
-    }, {
-        "type": "VAR",
-        "op": "add",
-        "name": "offX",
-        "value": 200
-    }]
-}, {
-    "type": "RETURN"
-}]
+TEMPLATE = {
+    ["src" ""]
+    ["xCount" 5]
+    ["offX" 0]
+    ["offY" 0]
+    ["width" 40]
+    ["height" 32]
+};
