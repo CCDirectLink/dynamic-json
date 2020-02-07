@@ -11,10 +11,7 @@ const lang = fs.readFileSync(path.join(__dirname, 'grammar', 'djson.ohm'), 'utf8
 
 const myGrammar = grammar(lang);
 const myInterpreter = myGrammar.createSemantics().addOperation('interpret', actions)
-const code = `
-["abcd" true];
-[[A 3], [A 3]];
-`;
+const code = fs.readFileSync(path.join(__dirname, 'tests', 'a.djson'), 'utf8');
 const match = myGrammar.match(code);
 
 if (match.succeeded()) {
