@@ -1,51 +1,25 @@
-import * as patchLib from "./lib/patch-lib.js";
-import * as utils from "./lib/utils.js";
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
+/*import * as patchLib from "./js/patch-lib.js";
+import * as utils from "./js/utils.js";*/
 
-const path = require('path');
+const {grammar} = require('ohm-js');
+
+const actions = require('./actions/actions.js');
 const fs = require('fs');
+const path = require('path');
 
+const lang = fs.readFileSync(path.join(__dirname, 'grammar', 'djson.ohm'), 'utf8')
 
-const storage = new Map;
+const myGrammar = grammar(lang);
+const myInterpreter = myGrammar.createSemantics().addOperation('interpret', actions)
+const code = `
+["abcd" true];
+[[A 3], [A 3]];
+`;
+const match = myGrammar.match(code);
 
-storage.set("INDEX", 1);
+if (match.succeeded()) {
+    console.log(myInterpreter(match).interpret())
 
-console.log(utils.resolveVariables(storage, "{{? (INDEX == 2) 1 2}}"));
-// const steps = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'tests/a.djson'), 'utf8'));
-
-// const savePath = path.join(process.cwd(), 'test.json');
-
-/*const output = patchLib.dynamicJson(steps);
-
-const steps = [{
-    "type": "VAR",
-    "name": "test",
-    "value": 2
-}];*/
-
-
-// fs.writeFileSync(savePath,JSON.stringify(output, null, 4) , 'utf8');
-
-/*export default class DynamicJson extends Plugin {
-
-    preload() {
-        window.dynamicJson = patchLib.dynamicJson;
-    }
-
-    postload() {
-        /*$.ajaxSettin
-
-        $.ajaxSetup({
-            beforeSend: function() {
-
-            }
-        });
-    }
-
-    _hookAjax() {
-        const _ = $.ajaxSettings.beforeSend;
-
-
-    }
-}**/
+} else {
+    console.error(match.message);
+}
