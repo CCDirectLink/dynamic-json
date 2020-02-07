@@ -83,6 +83,10 @@ const TRUE = new Literal(true);
 const FALSE = new Literal(false);
 
 module.exports = {
+    Program: function(statements) {
+        const ranStatements = statements.interpret();
+        return ranStatements[ranStatements.length - 1];
+    },
     Statement: function(statement, _) {
         return statement.interpret();
     },
