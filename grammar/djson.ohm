@@ -16,9 +16,14 @@ DJSON {
       tuple = "[" (identifier | string) space* (literal | identifier | tuple) "]"
       number = digit+ "."? digit*
       boolean = "true" | "false"
-      string = "\"" char* "\""  |
-                  "'" char* "'"
-      char  = letter | space
-      identifier = ("A" .. "Z")+
+      
+      string = "\"" (notDoubleQuote)* "\"" |
+                 "'" (notQuote)* "'"
+      notDoubleQuote = escapedDoubleQuote | ~"\"" ~ "\\" any
+      notQuote = escapedQuote | ~"'" ~"\\" any
+      
+      escapedQuote = "\\'"
+      escapedDoubleQuote = "\\\""
       Accessor = identifier ("[" string "]")+
+      identifier = ("A" .. "Z")+ 
 }
