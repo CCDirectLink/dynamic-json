@@ -19,11 +19,11 @@ DJSON {
       
       string = "\"" (notDoubleQuote)* "\"" |
                  "'" (notQuote)* "'"
-      notDoubleQuote = escapedDoubleQuote | ~"\"" ~ "\\" any
+      notDoubleQuote = escapedDoubleQuote | ~"\"" ~"\\" any
       notQuote = escapedQuote | ~"'" ~"\\" any
       
       escapedQuote = "\\'"
       escapedDoubleQuote = "\\\""
       Accessor = identifier ("[" string "]")+
-      identifier = ("A" .. "Z")+ 
+      identifier = ("A" .. "Z")+
 }
