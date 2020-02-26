@@ -3,14 +3,9 @@ class Obj {
         this.pairs = new Map;
     }
 
-    set(name, value) {
-        let id;
-        if (name instanceof Literal) {
-            id = name.get();
-        } else {
-            id = name.id;
-        }
-        this.pairs.set(id, value);
+    set(pair) {
+        console.log(pair);
+        this.pairs.set(pair.getId(), pair);
     }
 
     get(name) {
@@ -20,14 +15,33 @@ class Obj {
         } else {
             id = name.id;
         }
-
+       
         const value = this.pairs.get(id);
-
         if (value) {
-            return value;
+            return value.value;
         }
 
         return undefined;
+    }
+}
+
+class ObjKeyPair {
+    constructor(key, value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    getId() {
+        console.log('getId', this.key);
+        return this.key.getId();
+    }
+
+    set(value) {
+        this.value = value;
+    }
+
+    get() {
+        this.value = value;
     }
 }
 
@@ -61,9 +75,9 @@ class Scope {
 }
 
 class Identifier {
-    constructor(id) {
+    constructor(id, value) {
         this.id = id;
-        this.value = 0;
+        this.value = value;
     }
 
     set(value) {
@@ -86,11 +100,6 @@ class Literal {
     }
 
     set(value) {
-
-        if (value instanceof Literal) {
-            value = value.get();
-        }
-
         this.value = value;
     }
 
@@ -158,9 +167,7 @@ module.exports = {
     Assignment: function(lhs,_, rhs) {
         const id = lhs.interpret();
         let value = rhs.interpret();
-        if (value instanceof Identifier) {
-            value = value.clone();
-        }
+        console.log(id);
         id.set(value);
         
         globalScope.setVar(id);
@@ -176,7 +183,7 @@ module.exports = {
             return globalScope.getVar(name); 
         }
         
-        return new Identifier(name);
+        return new Identifier(name, 0);
     },
     literal: function(a) {        
         return a.interpret();
@@ -207,8 +214,8 @@ module.exports = {
     },
     Obj: function(_, b, _) {
         const object = new Obj;
-        for (const [id, value] of b.interpret()) {
-            object.set(id, value);
+        for (const pair of b.interpret()) {
+            object.set(pair);
         }
 
         return object;
@@ -216,7 +223,7 @@ module.exports = {
     ObjectPair: function(key, value) {
         const keyId = key.interpret();
         const val = value.interpret();
-        return [keyId, val];
+        return new Identifier(keyId.value, val);
     },
     NonemptyListOf: function(a, _, c) {
         return [a.interpret(), ...c.interpret()];
@@ -230,14 +237,15 @@ module.exports = {
         let value = null;
         if (obj) {
             for (const key of keys) {
-            
+                
                 value = obj.get(key);
-            
+                console.log(key, obj);
                 if  (value instanceof Obj || value instanceof Arr) {
                     obj = value;
-                }    
+                }
             }
         }
+        console.log('In accessor');
         return value;
-    }
+    },
 };
