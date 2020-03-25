@@ -1,0 +1,5 @@
+{
+	"name": "dynamic-json",
+	"version": "1.0.0",
+	"plugin": "plugin.js"
+}
