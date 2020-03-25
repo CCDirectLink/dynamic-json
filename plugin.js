@@ -1,19 +1,19 @@
+import RequestInterceptor from "./request-interceptor.js";
+
 export default class DynamicJson extends Plugin {
 	constructor(mod) {
 		super();
 		this.mod = mod;
-		this.intercept = {};
+
 	}
 
 	async preload() {
-		window.registerIntercept = function(url, cb) {
-			this.intercept[url] = cb;
-		}
-		this.intercept["a.json"] = function() {
+		window.requestInterceptor  = new RequestInterceptor;
+		requestInterceptor.registerIntercept("a.json", function() {
 			return {
-				a: 2
+				a: parseInt(Math.random() * 3) + 1
 			};
-		}
+		});
 	}
 
 	async postload() {
