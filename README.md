@@ -27,7 +27,7 @@ $.ajax({
 })
 ```
 
-This will print to the console `You got` with a random number starting from 1 to 50. 
+This will print to the console `You got` with a random number starting from `1` to `50`. 
 
 Why would you need this? No idea! But you can do it.
 
