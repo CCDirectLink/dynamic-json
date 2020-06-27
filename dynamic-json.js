@@ -1,11 +1,18 @@
 function convertFunctionToPromise(callback) {
-    if (callback[Symbol.toStringTag] !== 'AsyncFunction' && callback.constructor === Function) {
-        return async function () {
-            return callback.apply(this, arguments);
-        };
-    } else {
+    let isFunction = false;
+    if (callback) {
+        if (callback[Symbol.toStringTag] === 'AsyncFunction') {
+            isFunction = true;
+        } else if (callback.constructor === Function) {
+            return async function () {
+                return callback.apply(this, arguments);
+            };
+        }
+    }
+    if (!isFunction) {
         throw TypeError('callback must be a function type.');
     }
+
     return callback;
 }
 
