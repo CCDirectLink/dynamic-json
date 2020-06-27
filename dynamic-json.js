@@ -24,7 +24,7 @@ export default class DynamicJson {
         this.exact.set(url, convertFunctionToPromise(callback));
     }
 
-    forRegexUrl(url, callback) {
+    forRegExpUrl(url, callback) {
         if (!url || url.constructor !== RegExp) {
             throw TypeError('url must be a RegExp type.');
         }
