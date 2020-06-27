@@ -12,7 +12,7 @@ export default class Main {
 
 	async postload() {
 		const djson = this.djson;
-		const oldBeforeSend = $.ajaxSettings.beforeSend || () => { };
+		const oldBeforeSend = $.ajaxSettings.beforeSend || (() => { });
 		$.ajaxSetup({
 			beforeSend: function (jqXHR, settings) {
 				if (settings.dataType !== 'json' || settings.type !== 'GET') {
