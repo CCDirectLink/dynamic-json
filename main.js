@@ -1,17 +1,24 @@
 import DynamicJson from './dynamic-json.js';
-
+const djson = new DynamicJson;
 export default class Main {
 	constructor(mod) {
 		this.mod = mod;
-		this.djson = new DynamicJson;
 	}
 
 	async preload() {
-		window.DynamicJson = this.djson;
+		window.DynamicJson = djson;
+        for (const [name, mod] of modloader.loadedMods) {
+            try {
+                await mod.executeStage('registerDynamicJsonGenerators');
+            } catch (e) {
+                console.log('Mod', e, 'failed');
+                console.log(e.toString());
+            }
+		}
+		window.DynamicJson = undefined;
 	}
 
 	async postload() {
-		const djson = this.djson;
 		const oldBeforeSend = $.ajaxSettings.beforeSend || (() => { });
 		$.ajaxSetup({
 			beforeSend: function (jqXHR, settings) {
