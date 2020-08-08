@@ -16,6 +16,27 @@ function convertFunctionToPromise(callback) {
     return callback;
 }
 
+
+function replaceTemplateStringWithValue(str, values) {
+    let finishedStr = '';
+    let count = 0;
+    while (true) {
+        let index = str.indexOf("*");
+        if (index > -1) {
+            finishedStr += str.substring(0, index);
+            if (values[count] !== undefined) {
+                finishedStr += values[count];
+            }
+            count++;
+            str = str.substring(index + 1);
+        } else {
+            finishedStr += str;
+            break;
+        }
+    }
+    return finishedStr;
+}
+
 export default class DynamicJson {
 
 
@@ -29,6 +50,15 @@ export default class DynamicJson {
             throw TypeError('url must be a String type.');
         }
         this.exact.set(url, convertFunctionToPromise(callback));
+    }
+
+    forTemplateUrl(template, replacements, callback) {
+        for (const replacement of replacements) {
+            const exactUrl = replaceTemplateStringWithValue(template, replacement);
+            this.forExactUrl(exactUrl, async function() {
+                return callback.apply(this, replacement);
+            });
+        }
     }
 
     forRegExpUrl(url, callback) {
