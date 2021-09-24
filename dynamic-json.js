@@ -43,6 +43,7 @@ export default class DynamicJson {
     constructor() {
         this.exact = new Map;
         this.regex = new Map;
+        this.urlToGensCache = new Map;
     }
 
     forExactUrl(url, callback) {
@@ -91,8 +92,13 @@ export default class DynamicJson {
      * @returns {Function[]} matched generators
      */
     getGenerators(url) {
-        let matches = [];
 
+        // this is for repeated reloads
+        if (this.urlToGensCache.has(url)) {
+            return this.urlToGensCache.get(url);
+        }
+
+        const matches = [];
         if (this.exact.has(url)) {
             const generators = this.exact.get(url);
             matches.push(...generators);
@@ -108,6 +114,9 @@ export default class DynamicJson {
                 }));
             }
         }
+
+        this.urlToGensCache.set(url, matches);
+
         return matches;
     }
 
