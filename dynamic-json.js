@@ -116,7 +116,7 @@ export default class DynamicJson {
         for (const match of matches) {
             // each will return transformations
             try {
-                const newJson = await match(json, xhrSettings);
+                const newJson = await match(json, xhrSettings, failed);
                 if (newJson == null) {
                     if (!failed) {
                         // ignore unexpected return value
