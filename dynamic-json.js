@@ -78,8 +78,11 @@ export default class DynamicJson {
                 break;
             }
         }
+        if (!this.regex.has(url)) {
+            this.regex.set(url, []);
+        }
 
-        this.regex.set(url, convertFunctionToPromise(callback));
+        this.regex.get(url).push(convertFunctionToPromise(callback));
     }
 
     /**
@@ -95,12 +98,14 @@ export default class DynamicJson {
             matches.push(...generators);
         }
 
-        for (const [regexUrl, generator] of this.regex) {
+        for (const [regexUrl, generators] of this.regex) {
             const matchResults = Array.from(url.matchAll(regexUrl));
             if (matchResults.length) {
-                matches.push(async function() {
-                    return generator(...matchResults[0].splice(1), ...arguments);
-                });
+                matches.push(...generators.map(e => {
+                    return async function() {
+                        return generator(...matchResults[0].splice(1), ...arguments);
+                    };
+                }));
             }
         }
         return matches;
