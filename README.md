@@ -1,14 +1,33 @@
 # dynamic-json
 
-Currently only works in ccloader3
+Works with both CCLoader and CCloader3.
 
-A mod for generating a file through javascript. 
-NOTE: A resource overriding and patching is ignored.
+A mod for generating or patching a json file with javascript. 
 
 # Usage
 
 
 `DynamicJson.forExactUrl`
+
+```js
+
+// url should be relative to /path/to/crosscode/assets/ directory
+DynamicJson.forExactUrl('data/maps/cargo-ship/room3.json', 
+/**
+ * 
+ * @param {object} json
+ * @param {object} settings captured from the ajax request
+ * @param {boolean} failed true if the original ajax request failed, otherwise false.
+ * @returns {object | null} null return value means json does not need to be updated.
+ * */
+async (json, ajaxSettings, failed) => {
+    if (failed) {
+        return null;
+    }
+
+    return json;
+});
+```
 
 ```js
 DynamicJson.forExactUrl('random/number.json', function() {
