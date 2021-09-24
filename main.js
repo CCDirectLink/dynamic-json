@@ -37,7 +37,7 @@ export default class Main {
 							console.warn(`"${settings.url}" is acting as "${originalUrl}". Things may break.`);
 						}
 
-						djson.handleRequest(data).then(newValue => {
+						djson.handleRequest(data, settings).then(newValue => {
 							onSuccess.apply(settings.context, newValue);
 						});
 					};
@@ -46,7 +46,7 @@ export default class Main {
 						// generators have the ability to make
 						// new json files without touching the file system
 						// should try patching anyway
-						djson.handleRequest(null).then(newValue => {
+						djson.handleRequest(null, settings).then(newValue => {
 							if (newValue == null) {
 								onError.apply(settings.context, [error]);
 								return;

@@ -85,7 +85,7 @@ export default class DynamicJson {
     /**
      * 
      * @param {string} url to check against
-     * @returns {boolean} true if successfully handled request, false otherwise
+     * @returns {Function[]} matched generators
      */
     getGenerators(url) {
         let matches = [];
@@ -98,8 +98,8 @@ export default class DynamicJson {
         for (const [regexUrl, generator] of this.regex) {
             const matchResults = Array.from(url.matchAll(regexUrl));
             if (matchResults.length) {
-                matches.push(async function(jsonValue) {
-                    return generator(...matchResults[0].splice(1), jsonValue);
+                matches.push(async function() {
+                    return generator(...matchResults[0].splice(1), ...arguments);
                 });
             }
         }
@@ -108,21 +108,31 @@ export default class DynamicJson {
 
     /**
      * 
-     * @param {string} url to check against
-     * @param {function} onSuccess 
-     * @param {function} onError 
-     * @returns {boolean} true if successfully handled request, false otherwise
+     * @param {object} json fetched from the file system
+     * @returns {object} transformed json value
      */
-    async handleRequest(jsonValue) {
+    async handleRequest(json, xhrSettings) {
+        const failed = json == null;
         for (const match of matches) {
             // each will return transformations
             try {
-                jsonValue = await match(jsonValue);
+                const newJson = await match(json, xhrSettings);
+                if (newJson == null) {
+                    if (!failed) {
+                        // ignore unexpected return value
+                        continue;
+                    }
+
+                    if (json != null) {
+                        continue;
+                    }
+                }
+                json = newJson;
             } catch (e) {
                 console.error(e);
             }
         }
-        return jsonValue;
+        return json;
     }
 
 }
