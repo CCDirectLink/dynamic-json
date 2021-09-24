@@ -26,20 +26,36 @@ export default class Main {
 					return true;
 				}
 
-				settings.success = settings.success || (() => { });
-				settings.error = settings.error || (() => { });
+				const onSuccess = settings.success || (() => { });
+				const onError = settings.error || (() => { });
+				const originalUrl = settings.url;
+				const generators = getGenerators(settings.url);
+				if (generators.length) {
 
-				const onSuccess = (data) => {
-					settings.success.apply(settings.context, [data]);
-				};
+					settings.success = (data) => {
+						if (settings.url !== originalUrl) {
+							console.warn(`"${settings.url}" is acting as "${originalUrl}". Things may break.`);
+						}
 
-				const onError = (error) => {
-					settings.error.apply(settings.context, [error]);
-				};
-
-				if (djson.handleRequest(settings.url, onSuccess, onError)) {
-					return false;
+						djson.handleRequest(data).then(newValue => {
+							onSuccess.apply(settings.context, newValue);
+						});
+					};
+	
+					settings.error = (error) => {
+						// generators have the ability to make
+						// new json files without touching the file system
+						// should try patching anyway
+						djson.handleRequest(null).then(newValue => {
+							if (newValue == null) {
+								onError.apply(settings.context, [error]);
+								return;
+							}
+							onSuccess.apply(settings.context, [newValue]);
+						});
+					};
 				}
+				
 
 				return oldBeforeSend.apply(this, arguments);
 			}

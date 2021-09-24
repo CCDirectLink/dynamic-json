@@ -49,7 +49,10 @@ export default class DynamicJson {
         if (!url || url.constructor !== String) {
             throw TypeError('url must be a String type.');
         }
-        this.exact.set(url, convertFunctionToPromise(callback));
+        if (!this.exact.has(url)) {
+            this.exact.set(url, []);
+        }
+        this.exact.get(url).push(convertFunctionToPromise(callback));
     }
 
     forTemplateUrl(template, replacements, callback) {
@@ -79,6 +82,29 @@ export default class DynamicJson {
         this.regex.set(url, convertFunctionToPromise(callback));
     }
 
+    /**
+     * 
+     * @param {string} url to check against
+     * @returns {boolean} true if successfully handled request, false otherwise
+     */
+    getGenerators(url) {
+        let matches = [];
+
+        if (this.exact.has(url)) {
+            const generators = this.exact.get(url);
+            matches.push(...generators);
+        }
+
+        for (const [regexUrl, generator] of this.regex) {
+            const matchResults = Array.from(url.matchAll(regexUrl));
+            if (matchResults.length) {
+                matches.push(async function(jsonValue) {
+                    return generator(...matchResults[0].splice(1), jsonValue);
+                });
+            }
+        }
+        return matches;
+    }
 
     /**
      * 
@@ -87,23 +113,16 @@ export default class DynamicJson {
      * @param {function} onError 
      * @returns {boolean} true if successfully handled request, false otherwise
      */
-
-    handleRequest(url, onSuccess, onError) {
-        if (this.exact.has(url)) {
-            const generator = this.exact.get(url);
-            generator().then(onSuccess, onError);
-            return true;
-        }
-
-        for (const [regexUrl, generator] of this.regex) {
-            const matchResults = Array.from(url.matchAll(regexUrl));
-            if (matchResults.length) {
-                generator(...matchResults[0].splice(1)).then(onSuccess, onError);
-                return true;
+    async handleRequest(jsonValue) {
+        for (const match of matches) {
+            // each will return transformations
+            try {
+                jsonValue = await match(jsonValue);
+            } catch (e) {
+                console.error(e);
             }
         }
-
-        return false;
+        return jsonValue;
     }
 
 }
