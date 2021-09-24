@@ -23,17 +23,18 @@ async function getMods() {
 	// This is ccloader
 	if (window.activeMods) {
 		for (const activeMod of window.activeMods) {
-			// if they do not have a ccmod.json then skip them
+			// if they do not have a valid ccmod.json then skip them
 			let manifest;
 			try {
 				manifest = await fetch('/' + activeMod.baseDirectory + 'ccmod.json').then(e => e.json());
 			} catch (e) {
 				continue;
 			}
+
 			activeMod.executeStage = async (name) => {
 				const stageValue = manifest[name];
 				if (typeof stageValue  === 'string') {
-					await loadStage('/' + activeMod.baseDirectory + stageValue, mod.module);
+					await loadStage('/' + activeMod.baseDirectory + stageValue, activeMod.module);
 				}
 			};
 
@@ -74,7 +75,7 @@ export default class Main {
 				const onSuccess = settings.success || (() => { });
 				const onError = settings.error || (() => { });
 				const originalUrl = settings.url;
-				const generators = getGenerators(settings.url);
+				const generators = djson.getGenerators(settings.url);
 				if (generators.length) {
 
 					settings.success = (data) => {
@@ -82,8 +83,8 @@ export default class Main {
 							console.warn(`"${settings.url}" is acting as "${originalUrl}". Things may break.`);
 						}
 
-						djson.handleRequest(data, settings).then(newValue => {
-							onSuccess.apply(settings.context, newValue);
+						djson.handleRequest(generators, data, settings).then(newValue => {
+							onSuccess.apply(settings.context, [newValue]);
 						});
 					};
 	
@@ -91,7 +92,7 @@ export default class Main {
 						// generators have the ability to make
 						// new json files without touching the file system
 						// should try patching anyway
-						djson.handleRequest(null, settings).then(newValue => {
+						djson.handleRequest(generators, null, settings).then(newValue => {
 							if (newValue == null) {
 								onError.apply(settings.context, [error]);
 								return;
@@ -100,7 +101,6 @@ export default class Main {
 						});
 					};
 				}
-				
 
 				return oldBeforeSend.apply(this, arguments);
 			}

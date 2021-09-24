@@ -108,18 +108,21 @@ export default class DynamicJson {
 
     /**
      * 
+     * @param {Function[]} generators to execute
      * @param {object} json fetched from the file system
      * @returns {object} transformed json value
      */
-    async handleRequest(json, xhrSettings) {
+    async handleRequest(generators, json, xhrSettings) {
         const failed = json == null;
-        for (const match of matches) {
+        for (const generator of generators) {
             // each will return transformations
             try {
-                const newJson = await match(json, xhrSettings, failed);
+                const newJson = await generator(json, xhrSettings, failed);
                 if (newJson == null) {
                     if (!failed) {
                         // ignore unexpected return value
+                        // can also be used if returning 
+                        // a new object is unnecessary
                         continue;
                     }
 
